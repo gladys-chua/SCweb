@@ -169,9 +169,9 @@ else:
 st.subheader("__Building shape__")
 building_shape = st.selectbox("Choose the shape of the building",['1','2','3'])
 col1, col2, col3 = st.beta_columns(3)
-building_shape1 = Image.open("github/SCweb/SC_ui/REC.png")
-building_shape2 = Image.open("github/SCweb/SC_ui/LSHAPE.png")
-building_shape3 = Image.open("github/SCweb/SC_ui/TSHAPE.png")
+building_shape1 = Image.open("SC_ui/REC.png")
+building_shape2 = Image.open("SC_ui/LSHAPE.png")
+building_shape3 = Image.open("SC_ui/TSHAPE.png")
 with col1:
     st.header("Rectangle")
     st.image(building_shape1, caption="1", use_column_width=True)
