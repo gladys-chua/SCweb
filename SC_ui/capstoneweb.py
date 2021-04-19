@@ -16,7 +16,7 @@ def inputpage():
     gpr = st.number_input("Gross Plot Ratio (GPR):")
 
     min_area=4000.00    # for condo
-    site_area = st.number_input("Site Area in sqm:",min_value=min_area)
+    site_area = st.number_input("Site Area in sqm:",min_value=0.0)
 
     #max 50% of the site area
     site_coverage = site_area/2 
@@ -59,10 +59,10 @@ def inputpage():
 
     # Trigger conditions need to be taken care of
     st.subheader("**Dwelling Units**")
-    location_option = st.radio("Inside central area?",['yes','within the estates in Maps 2-10','no'])
-    if location_option != 'yes':
+    location_option = st.radio("Inside central area?",['Yes','within the estates in Maps 2-10','No'])
+    if location_option != 'Yes':
         numerator = gpr*site_area
-        if location_option == 'no':
+        if location_option == 'No':
             maxUnits = round(numerator/85)
         else:
             maxUnits = round(numerator/100)
@@ -101,7 +101,7 @@ def inputpage():
     #     B_additionalHeight = st.text_input()
 
     st.subheader("Refuse Bin Collection")
-    refuse_bin_underground = st.radio("Is the refuse bin underground?",['yes','no'])
+    refuse_bin_underground = st.radio("Is the refuse bin underground?",['Yes','No'])
     #checking if refuse bin collection is underground or above ground
     #checking the total amount of refuse produced from max DU
     no_of_bins=0
@@ -114,18 +114,18 @@ def inputpage():
         bin_area = 7.4 * 9
         resi_gfa = resi_gfa - bin_area 
 
-    if refuse_bin_underground == 'no':
+    if refuse_bin_underground == 'No':
         site_coverage = site_coverage - bin_area
 
     # substation
     # checking if the substation is above or underground and updating GFA
     st.subheader("Sub-Station")
-    sub_underground = st.radio("Is the sub-station underground?",['yes','no'])
+    sub_underground = st.radio("Is the sub-station underground?",['Yes','No'])
     # default is 12, 12
     sub_w = 12
     sub_l = 12
     area_of_substation = sub_w * sub_l
-    if sub_underground == 'no':
+    if sub_underground == 'No':
     #calculating the area of the sub station and new GFA
         # above ground
         resi_gfa = resi_gfa - area_of_substation
@@ -216,9 +216,9 @@ def inputpage():
     resi_gfa = resi_gfa - area_of_carpark
     flat_roof=st.radio('Is the roof a flat one?',['Yes','No'])
     if dwelling_units>700:
-        walkingcyclingplan="yes"
+        walkingcyclingplan="Yes"
     else:
-        walkingcyclingplan="no"
+        walkingcyclingplan="No"
 
     st.subheader("__Building shape__")
     building_shape = st.selectbox("Choose the shape of the building",['1','2','3'])
