@@ -354,7 +354,7 @@ def inputpage():
 
 def displaypage():
     st.title("Output from our program")
-    sf = st.empty()
+    sf = [st.empty(),st.empty(),st.empty()]
     front_pic = "front.jpg"
     perspective_pic = "perspective.jpg"
     top_pic = "top.jpg"
@@ -368,12 +368,14 @@ def displaypage():
     imgs=[]
     for i in range(4):
         # path = os.path.join("/Users", username, "Desktop", list_files[i])
-        path = os.path.join(home, "Desktop/"+list_files[i])
+        path = os.path.join(home, "Desktop",list_files[i])
         
         if list_files[i].find("jpg")!=-1:
             print(path)
             imgs.append(Image.open(path))
             caption.append(list_files[i].split(".")[0])
+            sf[i].image(Image.open(path),caption=caption[i],use_column_width=True)
+
             
         else:
             f = open(path, "r")
@@ -384,7 +386,7 @@ def displaypage():
             data = pd.DataFrame(content[pos//2:pos-1],index=content[:pos//2])
             # st.dataframe(data.head(10))
             data
-    sf.image(imgs,caption,width=200)
+    # sf.image(imgs,caption,width=200)
 
 
 
