@@ -368,24 +368,24 @@ def displaypage():
     imgs=[]
     for i in range(4):
         # path = os.path.join("/Users", username, "Desktop", list_files[i])
-        path = os.path.join(home, "Desktop",list_files[i])
+        path = os.path.join(home, "Desktop",list_files[3])
         
-        if list_files[i].find("jpg")!=-1:
-            print(path)
-            imgs.append(Image.open(path))
-            caption.append(list_files[i].split(".")[0])
-            sf[i].image(Image.open(path),caption=caption[i],use_column_width=True)
+        # if list_files[i].find("jpg")!=-1:
+        #     print(path)
+        #     imgs.append(Image.open(path))
+        #     caption.append(list_files[i].split(".")[0])
+        #     sf[i].image(Image.open(path),caption=caption[i],use_column_width=True)
 
             
-        else:
-            f = open(path, "r")
-            content=f.read()
-            f.close()
-            content=content.split('\n')
-            pos = len(content)
-            data = pd.DataFrame(content[pos//2:pos-1],index=content[:pos//2])
-            # st.dataframe(data.head(10))
-            data
+        # else:
+        f = open(path, "r")
+        content=f.read()
+        f.close()
+        content=content.split('\n')
+        pos = len(content)
+        data = pd.DataFrame(content[pos//2:pos-1],index=content[:pos//2])
+        # st.dataframe(data.head(10))
+        data
     # sf.image(imgs,caption,width=200)
 
 
