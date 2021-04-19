@@ -368,7 +368,7 @@ def displaypage():
     imgs=[]
     for i in range(4):
         # path = os.path.join("/Users", username, "Desktop", list_files[i])
-        path = os.path.join(home, "Desktop\\"+list_files[i])
+        path = os.path.join(home, "Desktop/"+list_files[i])
         
         if list_files[i].find("jpg")!=-1:
             print(path)
