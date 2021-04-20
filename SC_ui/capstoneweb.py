@@ -37,7 +37,7 @@ def inputpage():
     gpr = st.number_input("Gross Plot Ratio (GPR):")
 
     min_area=4000.00    # for condo
-    site_area = st.number_input("Site Area in sqm:",min_value=0.0)
+    site_area = st.number_input("Site Area in sqm:",min_value=4000.0)
 
     #max 50% of the site area
     site_coverage = site_area/2 
@@ -266,11 +266,11 @@ def inputpage():
     unitType(2,'2-Bedroom-type B1','2-Bedroom-type BP1','2-Bedroom-type BP2',unittype_Dict)
     unitType(3,'3-Bedroom-type C1','3-Bedroom-type CP1','3-Bedroom-type CP2',unittype_Dict)
     unitType(4,'4-Bedroom-type D1','4-Bedroom-type D2','4-Bedroom-type DP2',unittype_Dict)
-    print(unittype_Dict)
+    # print(unittype_Dict)
     
 
-    st.subheader("Building checker")
-    number_of_blocks = st.number_input("Number of blocks:",value=2.0)
+    st.subheader("Building Checker")
+    number_of_blocks = st.number_input("Number of blocks:",value=2,min_value=0,step=1)
     number_of_floorplates = number_of_blocks * building_max_storeys
     # floor area
     x = resi_gfa/number_of_floorplates
@@ -286,13 +286,13 @@ def inputpage():
 
     st.subheader("LIFTS and STAIRS")
     du_per_floor = math.floor(dwelling_units/(number_of_blocks*building_max_storeys))
-    lift_w = st.number_input("Width of lift",value=5.0)
-    lift_l = st.number_input("Length of width", value=5.0)
+    lift_w = st.number_input("Width of lift",value=5.0,min_value=0.0)
+    lift_l = st.number_input("Length of width", value=5.0,min_value=0.0)
     lift_ratio = st.text_input("Ratio of number of lifts to dwelling units  = ",value="1:4")
     lr = int(lift_ratio.split(":")[1])
     number_of_lifts = math.ceil(du_per_floor/lr)
-    stairs_w = st.number_input("Width of stairs",value=3.0)
-    stairs_l = st.number_input("Length of stairs",value=5.0)
+    stairs_w = st.number_input("Width of stairs",value=3.0,min_value=0.0)
+    stairs_l = st.number_input("Length of stairs",value=5.0,min_value=0.0)
     stairs_ratio = st.text_input("Ratio of dwelling units to number of stairs = ",value="1:4")
     sr = int(stairs_ratio.split(":")[1])
     number_of_stairs = math.ceil(du_per_floor/sr)
@@ -305,33 +305,35 @@ def inputpage():
     if bonus_gfa1:
         col=['GPR','site area','site coverage','max GFA','Balcony width','Balcony length','Balcony size','dwelling units',\
             'building storeys','building floor to floor first storey height','building floor to floor top storey height',\
-            'building floor to floor others height','road buffer','green buffer','building shape','2 bedder',"3 bedder","4 bedder",\
-            'residential GFA','Number of refuse chute bin','refuse bin area','sub-station width','sub-station length','sub-station area',\
-            'parking zone','ratio_lots',"number of car lots","area of carpark","number of (building) blocks",\
-            'number of floorplates','floor area','floorplates area',\
-            'lift width','lift length','number of lifts','lift ratio','stairs width','stairs length','number of stairs','stairs ratio']
+            'building floor to floor others height','road buffer','green buffer','building shape']
+            # ,'2 bedder',"3 bedder","4 bedder",\
+            # 'residential GFA','Number of refuse chute bin','refuse bin area','sub-station width','sub-station length','sub-station area',\
+            # 'parking zone','ratio_lots',"number of car lots","area of carpark","number of (building) blocks",\
+            # 'number of floorplates','floor area','floorplates area',\
+            # 'lift width','lift length','number of lifts','lift ratio','stairs width','stairs length','number of stairs','stairs ratio']
         data=[(gpr,site_area,site_coverage,gfa,balcony_width,balcony_length,balcony_size,dwelling_units,\
-            building_max_storeys,floor2floor_first_height,floor2floor_top_height,floor2floor_others_height,roadbuf,greenbuf,building_shape,\
-            unittype_Dict['2 bedder'],unittype_Dict['3 bedder'],unittype_Dict['4 bedder'],\
-            resi_gfa,no_of_bins,bin_area,sub_w,sub_l,area_of_substation,\
-            parking_zone,ratio_lots,no_of_car_lots,area_of_carpark,\
-            number_of_blocks,number_of_floorplates,x,y,\
-            lift_w,lift_l,number_of_lifts,lift_ratio,stairs_w,stairs_l,number_of_stairs,stairs_ratio)]
+            building_max_storeys,floor2floor_first_height,floor2floor_top_height,floor2floor_others_height,roadbuf,greenbuf,building_shape)] #,\
+            # unittype_Dict['2 bedder'],unittype_Dict['3 bedder'],unittype_Dict['4 bedder'],\
+            # resi_gfa,no_of_bins,bin_area,sub_w,sub_l,area_of_substation,\
+            # parking_zone,ratio_lots,no_of_car_lots,area_of_carpark,\
+            # number_of_blocks,number_of_floorplates,x,y,\
+            # lift_w,lift_l,number_of_lifts,lift_ratio,stairs_w,stairs_l,number_of_stairs,stairs_ratio)]
     else:
         col=['GPR','site area','site coverage','max GFA','dwelling units',\
             'building storeys','building floor to floor first storey height','building floor to floor top storey height',\
-            'building floor to floor others height','road buffer','green buffer','building shape','2 bedder',"3 bedder","4 bedder",\
-            'residential GFA','Number of refuse chute bin','refuse bin area','sub-station width','sub-station length','sub-station area',\
-            'parking zone','ratio_lots',"number of car lots","area of carpark","number of (building) blocks",\
-            'number of floorplates','floor area','floorplates area',\
-            'lift width','lift length','number of lifts','lift ratio','stairs width','stairs length','number of stairs','stairs ratio']
+            'building floor to floor others height','road buffer','green buffer','building shape']
+            # ,'2 bedder',"3 bedder","4 bedder",\
+            # 'residential GFA','Number of refuse chute bin','refuse bin area','sub-station width','sub-station length','sub-station area',\
+            # 'parking zone','ratio_lots',"number of car lots","area of carpark","number of (building) blocks",\
+            # 'number of floorplates','floor area','floorplates area',\
+            # 'lift width','lift length','number of lifts','lift ratio','stairs width','stairs length','number of stairs','stairs ratio']
         data=[(gpr,site_area,site_coverage,gfa,dwelling_units,\
-            building_max_storeys,floor2floor_first_height,floor2floor_top_height,floor2floor_others_height,roadbuf,greenbuf,building_shape,\
-            unittype_Dict['2 bedder'],unittype_Dict['3 bedder'],unittype_Dict['4 bedder'],\
-            resi_gfa,no_of_bins,bin_area,sub_w,sub_l,area_of_substation,\
-            parking_zone,ratio_lots,no_of_car_lots,area_of_carpark,\
-            number_of_blocks,number_of_floorplates,x,y,\
-            lift_w,lift_l,number_of_lifts,lift_ratio,stairs_w,stairs_l,number_of_stairs,stairs_ratio)]
+            building_max_storeys,floor2floor_first_height,floor2floor_top_height,floor2floor_others_height,roadbuf,greenbuf,building_shape)] #,\
+            # unittype_Dict['2 bedder'],unittype_Dict['3 bedder'],unittype_Dict['4 bedder'],\
+            # resi_gfa,no_of_bins,bin_area,sub_w,sub_l,area_of_substation,\
+            # parking_zone,ratio_lots,no_of_car_lots,area_of_carpark,\
+            # number_of_blocks,number_of_floorplates,x,y,\
+            # lift_w,lift_l,number_of_lifts,lift_ratio,stairs_w,stairs_l,number_of_stairs,stairs_ratio)]
 
     st.write('**Final CSV**')
     df = pd.DataFrame(data,columns=col)
@@ -363,29 +365,29 @@ def displaypage():
     list_files=[front_pic,perspective_pic,top_pic,results_csv]
     # username = os.environ["USER"]
     home = os.path.expanduser('~')
-    print(home)
+    # print(home)
     caption=[]
     imgs=[]
     for i in range(4):
         # path = os.path.join("/Users", username, "Desktop", list_files[i])
-        path = os.path.join(home, "Desktop",list_files[3])
+        path = os.path.join(home, "Desktop",list_files[i])
         
-        # if list_files[i].find("jpg")!=-1:
-        #     print(path)
-        #     imgs.append(Image.open(path))
-        #     caption.append(list_files[i].split(".")[0])
-        #     sf[i].image(Image.open(path),caption=caption[i],use_column_width=True)
-
+        if os.path.exists(path):    #check if the file exists
+            # print(path)
+            # imgs.append(Image.open(path))
+            if list_files[i].find("jpg")!=-1:
+                caption.append(list_files[i].split(".")[0])
+                sf[i].image(Image.open(path),caption=caption[i],use_column_width=True) 
             
-        # else:
-        f = open(path, "r")
-        content=f.read()
-        f.close()
-        content=content.split('\n')
-        pos = len(content)
-        data = pd.DataFrame(content[pos//2:pos-1],index=content[:pos//2])
-        # st.dataframe(data.head(10))
-        data
+            else:
+                f = open(path, "r")
+                content=f.read()
+                f.close()
+                content=content.split('\n')
+                pos = len(content)
+                data = pd.DataFrame(content[pos//2:pos-1],index=content[:pos//2])
+                # st.dataframe(data.head(10))
+                data
     # sf.image(imgs,caption,width=200)
 
 
@@ -399,5 +401,6 @@ def main():
         displaypage()
     
 
-main()
+if __name__ == "__main__":
+    main()
 
