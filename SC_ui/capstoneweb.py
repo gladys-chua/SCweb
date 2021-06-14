@@ -8,13 +8,17 @@ import zipfile
 from io import BytesIO, StringIO
 import os
 
+def create_download_link(val, filename,filetype="pdf",fn='file'):
+    b64 = base64.b64encode(val)  # val looks like b'...'
+    return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="{filename}.{filetype}">Download {fn}</a>'
+
 def unitType(no_of_room,p1,p2,p3,unittype_Dict):
     st.subheader("Unit Type for "+str(no_of_room)+" room")
-    unit_type = st.selectbox("Choose the Bedroom unit type",[p1,p2,p3])
+    unit_type = st.selectbox("Choose the Bedroom unit type",[p1,p2,p3],key='units')
     col1, col2, col3 = st.beta_columns(3)
-    unit1 = Image.open("SC_ui/units/"+p1+".jpg")
-    unit2 = Image.open("SC_ui/units/"+p2+".jpg")
-    unit3 = Image.open("SC_ui/units/"+p3+".jpg")
+    unit1 = Image.open("SC_ui/units/"+p1+".jpg")#SC_ui/
+    unit2 = Image.open("SC_ui/units/"+p2+".jpg")#SC_ui/
+    unit3 = Image.open("SC_ui/units/"+p3+".jpg")#SC_ui/
     with col1:
         # st.header("Rectangle")
         st.image(unit1, use_column_width=True)
@@ -29,12 +33,13 @@ def unitType(no_of_room,p1,p2,p3,unittype_Dict):
     unittype_Dict[str(no_of_room)+" bedder"]=unit_type
 
 # py -3 -m streamlit run capstoneweb.py  
-def inputpage():
-    st.sidebar.title('Download your CSV file here')
+ 
+def inputpage(home):
 
     st.title("Input your requirements and restrictions")
 
     gpr = st.number_input("Gross Plot Ratio (GPR):")
+    error_count=0
 
     min_area=4000.00    # for condo
     site_area = st.number_input("Site Area in sqm:",min_value=4000.0)
@@ -58,6 +63,7 @@ def inputpage():
         balcony_width = st.number_input("Width of the balcony:",min_value=1.5)
         if balcony_length<balcony_width:
             st.error('Length should be larger than width')
+            error_count+=1
         balcony_x = 2*balcony_width+balcony_length
         st.write("Total Balcony Perimeter =",balcony_x+balcony_width)
         st.write("Open Balcony Perimeter =",balcony_x)
@@ -66,12 +72,14 @@ def inputpage():
             st.write("Percentage of Balcony Perimeter Opening is ",round(balcony_percentage,2),"%")
             if balcony_percentage<40:
                 st.error("Percentage of Balcony Perimeter Opening is less than 40%",balcony_percentage)
+                error_count+=1
         # size for each dwelling unit is capped at 15% of internal nett unit size
         internal_net_unit_size=st.number_input('Internal net unit size',min_value=0.00)
         balcony_size=balcony_length*balcony_width
         st.write('Size of Balcony =',balcony_size)
         if internal_net_unit_size*0.15>balcony_size:
             st.error('Size for each dwelling unit is capped at 15% of internal net unit size')
+            error_count+=1
         
         # st.write("**PES**")
         # st.write("**Roof Terrace**")
@@ -120,7 +128,12 @@ def inputpage():
     # if st.checkbox("Additional Height for Predominant Sky Terrace Storey"):
     #     # occupy >60% of the floor plate
     #     B_additionalHeight = st.text_input()
-
+    
+    # check height of building 
+    height_checker = floor2floor_first_height + floor2floor_top_height + (building_max_storeys - 2)*floor2floor_others_height
+    if height_checker>building_total_height:
+        st.error("The maximum building height has been exceeded. Please check the heights.")
+        error_count+=1
     st.subheader("Refuse Bin Collection")
     refuse_bin_underground = st.radio("Is the refuse bin underground?",['Yes','No'])
     #checking if refuse bin collection is underground or above ground
@@ -180,10 +193,7 @@ def inputpage():
             # cat 4-5 and sliproad
             roadbuf=7.5
             greenbuf=3.0
-    # check height of building 
-    height_checker = floor2floor_first_height + floor2floor_top_height + (building_max_storeys - 2)*floor2floor_others_height
-    if height_checker>building_total_height:
-        st.error("The maximum building height has been exceeded. Please check the heights.")
+    
         
     # For common boundary setback % planting strip, 36 storey and above same
     condo = {1:3.0, 2:3.0, 3:3.4, 4:3.8, 5:4.7, 6:5.5, 7:6.4,\
@@ -212,6 +222,7 @@ def inputpage():
     if floor2floor_top_height<=5:
         attic=st.radio('Is there an attic?',['Yes','No'])
     ancillary=st.radio('Are there any ancillary shops?',['Yes','No'])
+
     st.subheader("Carpark")
     parking_zone = st.radio("Which zone is the carpark in?",[1,2,3])
     ratio_lots = st.number_input("Ratio lots:",value=2.0)
@@ -222,16 +233,18 @@ def inputpage():
     if parking_zone == 1:
         if ratio_lots>2:
             st.error("Ratio too low") 
+            error_count+=1
         else:
-            no_of_car_lots = dwelling_units/ratio_lots
+            no_of_car_lots = dwelling_units//ratio_lots
             area_of_carpark  = no_of_car_lots * 35
             # return no_of_car_lots,area_of_carpark
 
     if parking_zone == 2 or parking_zone == 3:
         if ratio_lots > 1.25:
             st.error("Ratio too low")
+            error_count+=1
         else:
-            no_of_car_lots = dwelling_units/ratio_lots
+            no_of_car_lots = dwelling_units//ratio_lots
             area_of_carpark  = no_of_car_lots * 35
             # return no_of_car_lots,area_of_carpark
     resi_gfa = resi_gfa - area_of_carpark
@@ -243,12 +256,12 @@ def inputpage():
 
     # user choice 
     st.subheader("__Building shape__")
-    building_shape = st.selectbox("Choose the shape of the building",['Rectangle','L-shaped','Courtyard','Cross'])
+    building_shape = st.selectbox("Choose the shape of the building",['Rectangle','L-shaped','Courtyard','Cross'],key='building shape')
     col1, col2, col3, col4 = st.beta_columns(4)
-    building_shape1 = Image.open("SC_ui/UI ICON-01.png")
-    building_shape2 = Image.open("SC_ui/UI ICON-02.png")
-    building_shape3 = Image.open("SC_ui/UI ICON-03.png")
-    building_shape4 = Image.open("SC_ui/UI ICON-04.png")
+    building_shape1 = Image.open("SC_ui/UI ICON-01.png")#"SC_ui/UI ICON-01.png")
+    building_shape2 = Image.open("SC_ui/UI ICON-02.png")#"SC_ui/UI ICON-02.png")
+    building_shape3 = Image.open("SC_ui/UI ICON-03.png")#"SC_ui/UI ICON-03.png")
+    building_shape4 = Image.open("SC_ui/UI ICON-04.png")#"SC_ui/UI ICON-04.png")
     with col1:
         # st.header("Rectangle")
         st.image(building_shape1, use_column_width=True)
@@ -283,6 +296,7 @@ def inputpage():
     st.write("Resi GFA:",resi_gfa,"         max gfa",gfa)
     if y<x:
         st.error("The number of floors/blocks is too low. Please increase it.")
+        error_count+=1
 
     st.subheader("LIFTS and STAIRS")
     du_per_floor = math.floor(dwelling_units/(number_of_blocks*building_max_storeys))
@@ -299,6 +313,8 @@ def inputpage():
     st.write("number of dwelling units per floor:",du_per_floor)
     st.write("number of lift:",number_of_lifts)
     st.write("number of stairs:",number_of_stairs)
+    st.write("Area of lifts:",lift_l*lift_w*number_of_lifts)
+    st.write("Area of stairs:",stairs_l*stairs_w*number_of_stairs)
 
 
     #compile as pandas df
@@ -321,20 +337,20 @@ def inputpage():
     else:
         col=['GPR','site area','site coverage','max GFA','dwelling units',\
             'building storeys','building floor to floor first storey height','building floor to floor top storey height',\
-            'building floor to floor others height','road buffer','green buffer','building shape']
-            # ,'2 bedder',"3 bedder","4 bedder",\
+            'building floor to floor others height','road buffer','green buffer','building shape',\
+            '2 bedder',"3 bedder","4 bedder"]#,\
             # 'residential GFA','Number of refuse chute bin','refuse bin area','sub-station width','sub-station length','sub-station area',\
             # 'parking zone','ratio_lots',"number of car lots","area of carpark","number of (building) blocks",\
             # 'number of floorplates','floor area','floorplates area',\
             # 'lift width','lift length','number of lifts','lift ratio','stairs width','stairs length','number of stairs','stairs ratio']
         data=[(gpr,site_area,site_coverage,gfa,dwelling_units,\
-            building_max_storeys,floor2floor_first_height,floor2floor_top_height,floor2floor_others_height,roadbuf,greenbuf,building_shape)] #,\
-            # unittype_Dict['2 bedder'],unittype_Dict['3 bedder'],unittype_Dict['4 bedder'],\
+            building_max_storeys,floor2floor_first_height,floor2floor_top_height,floor2floor_others_height,roadbuf,greenbuf,building_shape,\
+            unittype_Dict['2 bedder'],unittype_Dict['3 bedder'],unittype_Dict['4 bedder'])] #,\
             # resi_gfa,no_of_bins,bin_area,sub_w,sub_l,area_of_substation,\
             # parking_zone,ratio_lots,no_of_car_lots,area_of_carpark,\
             # number_of_blocks,number_of_floorplates,x,y,\
             # lift_w,lift_l,number_of_lifts,lift_ratio,stairs_w,stairs_l,number_of_stairs,stairs_ratio)]
-
+    
     st.write('**Final CSV**')
     df = pd.DataFrame(data,columns=col)
     # df
@@ -346,59 +362,33 @@ def inputpage():
     # st.write(df_transpose.index,"Check",newdfTrans.index)
     # df_oneCol = newdfTrans.stack().reset_index(drop=True)
     # df_oneCol
-
+    if resi_gfa<0:
+        error_count+=1
 
     csv = df_transpose.to_csv(index=True,header=None)
-    b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
-    href = f'<a href="data:file/csv;base64,{b64}">Download CSV File</a> (right-click and save as &lt;some_name&gt;.csv)'
-    st.sidebar.markdown(href, unsafe_allow_html=True)
-
-
-def displaypage():
-    st.title("Output from our program")
-    sf = [st.empty(),st.empty(),st.empty()]
-    front_pic = "front.jpg"
-    perspective_pic = "perspective.jpg"
-    top_pic = "top.jpg"
-    results_csv = "capstone_trial.txt"
-
-    list_files=[front_pic,perspective_pic,top_pic,results_csv]
-    # username = os.environ["USER"]
-    home = os.path.expanduser('~')
-    # print(home)
-    caption=[]
-    imgs=[]
-    for i in range(4):
-        # path = os.path.join("/Users", username, "Desktop", list_files[i])
-        path = os.path.join(home, "Desktop",list_files[i])
-        
-        if os.path.exists(path):    #check if the file exists
-            # print(path)
-            # imgs.append(Image.open(path))
-            if list_files[i].find("jpg")!=-1:
-                caption.append(list_files[i].split(".")[0])
-                sf[i].image(Image.open(path),caption=caption[i],use_column_width=True) 
-            
-            else:
-                f = open(path, "r")
-                content=f.read()
-                f.close()
-                content=content.split('\n')
-                pos = len(content)
-                data = pd.DataFrame(content[pos//2:pos-1],index=content[:pos//2])
-                # st.dataframe(data.head(10))
-                data
-    # sf.image(imgs,caption,width=200)
-
-
+    # b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
+    # href = f'<a href="data:file/csv;base64,{b64}">Download CSV File</a> (right-click and save as &lt;some_name&gt;.csv)'
+    
+    if st.button("Save"):
+        if error_count==0:
+            df_transpose.to_csv(os.path.join(home, "Desktop", "building_datav1.csv"),header=None)
+        else:
+            st.error("Please make sure all inputs comply")
+    if error_count==0:
+        st.sidebar.subheader('Download your Building Parameters CSV file here:')
+        csv_html = create_download_link(csv.encode(), "inputParameters",filetype="csv")
+        st.sidebar.markdown(csv_html, unsafe_allow_html=True)
+    else:
+        st.sidebar.subheader('Please check that there are no errors.')
 
 def main():
     menu = ["Requirement Inputs","Display Outputs"]
     choice = st.sidebar.radio("Navigation",menu)
+    home = os.path.expanduser('~')
     if choice == "Requirement Inputs":
-        inputpage()
+        inputpage(home)
     else:
-        displaypage()
+        st.title(choice)
     
 
 if __name__ == "__main__":
