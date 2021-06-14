@@ -369,17 +369,16 @@ def inputpage(home):
     # b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
     # href = f'<a href="data:file/csv;base64,{b64}">Download CSV File</a> (right-click and save as &lt;some_name&gt;.csv)'
     
-    if st.button("Save"):
-        if error_count==0:
-            df_transpose.to_csv(os.path.join(home, "Desktop", "building_datav1.csv"),header=None)
-        else:
-            st.error("Please make sure all inputs comply")
+    # if st.button("Save"):
+    #     if error_count==0:
+    #         df_transpose.to_csv(os.path.join(home, "Desktop", "building_datav1.csv"),header=None)
+    #     else:
+    #         st.error("Please make sure all inputs comply")
+    
+    st.sidebar.subheader('Download your Building Parameters CSV file here:')
     if error_count==0:
-        st.sidebar.subheader('Download your Building Parameters CSV file here:')
         csv_html = create_download_link(csv.encode(), "inputParameters",filetype="csv")
         st.sidebar.markdown(csv_html, unsafe_allow_html=True)
-    else:
-        st.sidebar.subheader('Please check that there are no errors.')
 
 def main():
     menu = ["Requirement Inputs","Display Outputs"]
