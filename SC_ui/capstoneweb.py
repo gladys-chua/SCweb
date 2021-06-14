@@ -375,16 +375,18 @@ def inputpage(home):
     #     else:
     #         st.error("Please make sure all inputs comply")
     
-    st.sidebar.subheader('Download your Building Parameters CSV file here:')
     if error_count==0:
+        st.sidebar.subheader('Download your Building Parameters CSV file here:')
         csv_html = create_download_link(csv.encode(), "inputParameters",filetype="csv")
         st.sidebar.markdown(csv_html, unsafe_allow_html=True)
+    else:
+        st.sidebar.subheader('The CSV file will be available here when no errors are detected.')
 
 def main():
-    menu = ["Requirement Inputs","Display Outputs"]
+    menu = ["User Inputs","Display Outputs"]
     choice = st.sidebar.radio("Navigation",menu)
     home = os.path.expanduser('~')
-    if choice == "Requirement Inputs":
+    if choice == "User Inputs":
         inputpage(home)
     else:
         st.title(choice)
