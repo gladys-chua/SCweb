@@ -88,7 +88,7 @@ def inputpage(home):
 
     # Trigger conditions need to be taken care of
     st.subheader("**Dwelling Units**")
-    location_option = st.radio("Inside central area?",['Yes','within the estates in Maps 2-10','No'])
+    location_option = st.radio("Inside central area?",['within the estates in Maps 2-10','No'])
     if location_option != 'Yes':
         numerator = gpr*site_area
         if location_option == 'No':
