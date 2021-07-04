@@ -232,10 +232,10 @@ def inputpage(home):
 
     st.subheader("Carpark")
     carpark_underground = st.radio("Is the carpark underground?",['No','Yes'])
+    carpark_at_lowrise=='No'
     if lowrise=='Yes':
         carpark_at_lowrise = st.radio("Is the carpark situated at the low rise zone?",['Yes','No'])
-    else:
-        carpark_at_lowrise=='No'
+    
     carpark_storeys = st.number_input("How many storeys does the carpark have?",min_value=1,step=1,format='%d')
     
     
