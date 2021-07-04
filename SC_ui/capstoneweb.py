@@ -51,6 +51,12 @@ def inputpage(home):
     max_gfa=math.ceil(gpr*site_area)
     gfa = st.number_input("Maximum Gross Floor Area (GFA) in sqm:",min_value=0,max_value=max_gfa,value=0,step=1)
     resi_gfa = gfa
+
+    lowrise = st.radio("Is there a low rise zone?",['No','Yes'])
+    lowrise_height=0
+    if lowrise=='Yes':
+        lowrise_height = st.number_input("What is the maximum height for the low rise zone?",min_value=0.0)
+
     # got cap, need add in restriction
     # capped at 1% of total GFA
     # the communal indoor recreation spaces to be counted as bonus GFA,
@@ -98,8 +104,8 @@ def inputpage(home):
         # print(numerator,maxUnits)
         dwelling_units = maxUnits 
         st.write("Number of dwelling units:",maxUnits)
-    else:
-        dwelling_units = st.number_input("Number of Dwelling Units:",min_value=0,max_value=1000,step=1,value=0)
+    # else:
+    #     dwelling_units = st.number_input("Number of Dwelling Units:",min_value=0,max_value=1000,step=1,value=0)
         
     st.subheader("**Building Height**")
     building_total_height = st.number_input("Height of the building:",min_value=0.00)
@@ -120,7 +126,7 @@ def inputpage(home):
     else:
         max_storey=36
         top_storey_height=5.0
-    building_max_storeys = st.number_input("Maximum number of storeys:",min_value=0,max_value=max_storey,step=1,value=1)
+    building_max_storeys = st.number_input("Maximum number of storeys:",min_value=0,max_value=max_storey,step=1,value=max_storey)
     st.write("Floor to Floor Height:")
     floor2floor_first_height = st.number_input("Height for the First storey:",min_value=0.0,max_value=first_storey_height,step=0.1,value=first_storey_height)
     floor2floor_top_height = st.number_input("Height for the Top storey:",min_value=0.0,max_value=top_storey_height,step=0.1,value=top_storey_height)
@@ -134,6 +140,7 @@ def inputpage(home):
     if height_checker>building_total_height:
         st.error("The maximum building height has been exceeded. Please check the heights.")
         error_count+=1
+
     st.subheader("Refuse Bin Collection")
     refuse_bin_underground = st.radio("Is the refuse bin underground?",['Yes','No'])
     #checking if refuse bin collection is underground or above ground
@@ -169,30 +176,30 @@ def inputpage(home):
 
     st.subheader("**Building Setback From Boundary**")
     # depends on no. of storeys
-    roadngreenbuf = st.radio("Road and Green Buffer",("Category 1",'Category 2','Category 3','Category 4-5 and slip road'))
-    greenbuf = 5.0
-    roadbuf=0
-    if building_max_storeys<6:
-        if roadngreenbuf=="Category 1":
-            roadbuf=24.0
-        elif roadngreenbuf=="Category 2":
-            roadbuf=12.0
-        else:
-            # cat 3 same as cat 4-5
-            roadbuf=7.5
-            greenbuf=3.0
-    else:
-        if roadngreenbuf=="Category 1":
-            roadbuf=30.0
-        elif roadngreenbuf=="Category 2":
-            roadbuf=15.0
-        elif roadngreenbuf=="Category 3":
-            roadbuf=10
-            greenbuf=3.0
-        else: 
-            # cat 4-5 and sliproad
-            roadbuf=7.5
-            greenbuf=3.0
+    # roadngreenbuf = st.radio("Road and Green Buffer",("Category 1",'Category 2','Category 3','Category 4-5 and slip road'))
+    # greenbuf = 5.0
+    # roadbuf=0
+    # if building_max_storeys<6:
+    #     if roadngreenbuf=="Category 1":
+    #         roadbuf=24.0
+    #     elif roadngreenbuf=="Category 2":
+    #         roadbuf=12.0
+    #     else:
+    #         # cat 3 same as cat 4-5
+    #         roadbuf=7.5
+    #         greenbuf=3.0
+    # else:
+    #     if roadngreenbuf=="Category 1":
+    #         roadbuf=30.0
+    #     elif roadngreenbuf=="Category 2":
+    #         roadbuf=15.0
+    #     elif roadngreenbuf=="Category 3":
+    #         roadbuf=10
+    #         greenbuf=3.0
+    #     else: 
+    #         # cat 4-5 and sliproad
+    #         roadbuf=7.5
+    #         greenbuf=3.0
     
         
     # For common boundary setback % planting strip, 36 storey and above same
@@ -224,6 +231,26 @@ def inputpage(home):
     ancillary=st.radio('Are there any ancillary shops?',['Yes','No'])
 
     st.subheader("Carpark")
+    carpark_underground = st.radio("Is the carpark underground?",['No','Yes'])
+    if lowrise=='Yes':
+        carpark_at_lowrise = st.radio("Is the carpark situated at the low rise zone?",['Yes','No'])
+    else:
+        carpark_at_lowrise=='No'
+    carpark_storeys = st.number_input("How many storeys does the carpark have?",min_value=1,step=1,format='%d')
+    
+    
+    carpark_equal_apartment = st.radio("Does the carpark have the same height as the apartments?",['Yes','No'])
+    carpark_height = top_storey_height
+    if carpark_equal_apartment=='No':
+        carpark_height = st.number_input("Height of Carpark (for 1 storey):")
+
+    if carpark_at_lowrise=='Yes' and carpark_underground=='No':
+        #check height
+        lowrise_carpark_maxheight = lowrise_height*carpark_height
+        if carpark_height*carpark_storeys > lowrise_carpark_maxheight:
+            st.error("The total height of the Carpark has exceeded the maximum height limit. Please decrease the height per storey or number of storeys")
+            error_count+=1
+
     parking_zone = st.radio("Which zone is the carpark in?",[1,2,3])
     ratio_lots = st.number_input("Ratio lots:",value=2.0)
     # def car_parking (max_DU,ratio_lots,zone):
@@ -316,40 +343,62 @@ def inputpage(home):
     st.write("Area of lifts:",lift_l*lift_w*number_of_lifts)
     st.write("Area of stairs:",stairs_l*stairs_w*number_of_stairs)
 
+    st.subheader("Facilities")
+    st.write("Swimming Pool")
+    pool_lanes = st.number_input("Number of lanes:",min_value=1,max_value=10,step=1)
+    pool_len = st.radio("Length of Swimming Pool (in metres):",[20,25,50])
+    pool_buffer = st.number_input("Buffer for the Swimming Pool (0 - 10):",min_value=1,max_value=10,step=1)
+
+    st.write("Guardhouse")
+    sideofroad = st.radio("Which side of the road is the Guardhouse located at?",['Left','Right'])
+    guardhouse_width = st.number_input("Width of guardhouse:",min_value=1.0)
+    guardhouse_len = st.number_input("Length of guardhouse:",min_value=1.0)
+
+    st.write("Tennis Court")
+    tennis = st.number_input("Number of tennis courts:",min_value=1,format='%d')
 
     #compile as pandas df
     if bonus_gfa1:
         col=['GPR','site area','site coverage','max GFA','Balcony width','Balcony length','Balcony size','dwelling units',\
             'building storeys','building floor to floor first storey height','building floor to floor top storey height',\
-            'building floor to floor others height','road buffer','green buffer','building shape']
-            # ,'2 bedder',"3 bedder","4 bedder",\
-            # 'residential GFA','Number of refuse chute bin','refuse bin area','sub-station width','sub-station length','sub-station area',\
-            # 'parking zone','ratio_lots',"number of car lots","area of carpark","number of (building) blocks",\
-            # 'number of floorplates','floor area','floorplates area',\
-            # 'lift width','lift length','number of lifts','lift ratio','stairs width','stairs length','number of stairs','stairs ratio']
+            'building floor to floor others height','building shape' #'road buffer','green buffer',
+            ,'2 bedder',"3 bedder","4 bedder",\
+            'residential GFA','Number of refuse chute bin','refuse bin area','sub-station width','sub-station length','sub-station area',\
+            'parking zone','ratio_lots',"number of car lots","area of carpark","number of (building) blocks",\
+            'number of floorplates','floor area','floorplates area',\
+            'lift width','lift length','number of lifts','lift ratio','stairs width','stairs length','number of stairs','stairs ratio',\
+            'low rise zone','low rise height','carpark underground','carpark at lowrise','number of carpark storeys','carpark height','number of swimming pool lanes','swimming pool length','swimming pool buffer',\
+            'guardhouse side of road','guardhouse width','guardhouse length','number of tennis court']
         data=[(gpr,site_area,site_coverage,gfa,balcony_width,balcony_length,balcony_size,dwelling_units,\
-            building_max_storeys,floor2floor_first_height,floor2floor_top_height,floor2floor_others_height,roadbuf,greenbuf,building_shape)] #,\
-            # unittype_Dict['2 bedder'],unittype_Dict['3 bedder'],unittype_Dict['4 bedder'],\
-            # resi_gfa,no_of_bins,bin_area,sub_w,sub_l,area_of_substation,\
-            # parking_zone,ratio_lots,no_of_car_lots,area_of_carpark,\
-            # number_of_blocks,number_of_floorplates,x,y,\
-            # lift_w,lift_l,number_of_lifts,lift_ratio,stairs_w,stairs_l,number_of_stairs,stairs_ratio)]
+            building_max_storeys,floor2floor_first_height,floor2floor_top_height,floor2floor_others_height,building_shape, #roadbuf,greenbuf
+            unittype_Dict['2 bedder'],unittype_Dict['3 bedder'],unittype_Dict['4 bedder'],\
+            resi_gfa,no_of_bins,bin_area,sub_w,sub_l,area_of_substation,\
+            parking_zone,ratio_lots,no_of_car_lots,area_of_carpark,\
+            number_of_blocks,number_of_floorplates,x,y,\
+            lift_w,lift_l,number_of_lifts,lift_ratio,stairs_w,stairs_l,number_of_stairs,stairs_ratio,\
+            lowrise,lowrise_height,carpark_underground,carpark_at_lowrise,carpark_storeys,carpark_height,pool_lanes,pool_len,pool_buffer,\
+            sideofroad,guardhouse_width,guardhouse_len,tennis)]
     else:
         col=['GPR','site area','site coverage','max GFA','dwelling units',\
             'building storeys','building floor to floor first storey height','building floor to floor top storey height',\
-            'building floor to floor others height','road buffer','green buffer','building shape',\
-            '2 bedder',"3 bedder","4 bedder"]#,\
-            # 'residential GFA','Number of refuse chute bin','refuse bin area','sub-station width','sub-station length','sub-station area',\
-            # 'parking zone','ratio_lots',"number of car lots","area of carpark","number of (building) blocks",\
-            # 'number of floorplates','floor area','floorplates area',\
-            # 'lift width','lift length','number of lifts','lift ratio','stairs width','stairs length','number of stairs','stairs ratio']
+            'building floor to floor others height','building shape',\
+            '2 bedder',"3 bedder","4 bedder",\
+            'residential GFA','Number of refuse chute bin','refuse bin area','sub-station width','sub-station length','sub-station area',\
+            'parking zone','ratio_lots',"number of car lots","area of carpark","number of (building) blocks",\
+            'number of floorplates','floor area','floorplates area',\
+            'lift width','lift length','number of lifts','lift ratio','stairs width','stairs length','number of stairs','stairs ratio',\
+            'low rise zone','low rise height','carpark underground','carpark at lowrise','number of carpark storeys','carpark height','number of swimming pool lanes','swimming pool length','swimming pool buffer',\
+            'guardhouse side of road','guardhouse width','guardhouse length','number of tennis court']
+
         data=[(gpr,site_area,site_coverage,gfa,dwelling_units,\
-            building_max_storeys,floor2floor_first_height,floor2floor_top_height,floor2floor_others_height,roadbuf,greenbuf,building_shape,\
-            unittype_Dict['2 bedder'],unittype_Dict['3 bedder'],unittype_Dict['4 bedder'])] #,\
-            # resi_gfa,no_of_bins,bin_area,sub_w,sub_l,area_of_substation,\
-            # parking_zone,ratio_lots,no_of_car_lots,area_of_carpark,\
-            # number_of_blocks,number_of_floorplates,x,y,\
-            # lift_w,lift_l,number_of_lifts,lift_ratio,stairs_w,stairs_l,number_of_stairs,stairs_ratio)]
+            building_max_storeys,floor2floor_first_height,floor2floor_top_height,floor2floor_others_height,building_shape,\
+            unittype_Dict['2 bedder'],unittype_Dict['3 bedder'],unittype_Dict['4 bedder'],\
+            resi_gfa,no_of_bins,bin_area,sub_w,sub_l,area_of_substation,\
+            parking_zone,ratio_lots,no_of_car_lots,area_of_carpark,\
+            number_of_blocks,number_of_floorplates,x,y,\
+            lift_w,lift_l,number_of_lifts,lift_ratio,stairs_w,stairs_l,number_of_stairs,stairs_ratio,\
+            lowrise,lowrise_height,carpark_underground,carpark_at_lowrise,carpark_storeys,carpark_height,pool_lanes,pool_len,pool_buffer,\
+            sideofroad,guardhouse_width,guardhouse_len,tennis)]
     
     st.write('**Final CSV**')
     df = pd.DataFrame(data,columns=col)
@@ -377,10 +426,12 @@ def inputpage(home):
     
     if error_count==0:
         st.sidebar.subheader('Download your Building Parameters CSV file here:')
-        csv_html = create_download_link(csv.encode(), "inputParameters",filetype="csv")
+        csv_html = create_download_link(csv.encode(), "input_parameters",filetype="csv")
         st.sidebar.markdown(csv_html, unsafe_allow_html=True)
     else:
         st.sidebar.subheader('The CSV file will be available here when no errors are detected.')
+
+
 
 def main():
     menu = ["User Inputs","Display Outputs"]
