@@ -239,7 +239,7 @@ def inputpage(home):
     carpark_storeys = st.number_input("How many storeys does the carpark have?",min_value=1,step=1,format='%d')
 
     carpark_equal_apartment = st.radio("Does the carpark have the same height as the apartments?",['Yes','No'])
-    carpark_height = top_storey_height
+    carpark_height = floor2floor_others_height
     if carpark_equal_apartment=='No':
         carpark_height = st.number_input("Height of Carpark (for 1 storey):")
 
@@ -249,7 +249,7 @@ def inputpage(home):
     #     if carpark_height*carpark_storeys < lowrise_carpark_maxheight:
     #         # st.error("The total height of the Carpark has exceeded the maximum height limit. Please decrease the height per storey or number of storeys")
     #         # error_count+=1
-    carpark_height_more_than_lowrise = "No"
+    carpark_height_less_than_lowrise = "No"
     if carpark_underground=='No':
         #check height
         lowrise_carpark_maxheight = lowrise_height*carpark_height
@@ -290,11 +290,11 @@ def inputpage(home):
 
     # user choice 
     st.subheader("__Building shape__")
-    building_shape = st.selectbox("Choose the shape of the building",['Rectangle','L-shaped','Courtyard','Cross'],key='building shape')
+    building_shape = st.selectbox("Choose the shape of the building",['Rectangle','L-shaped','Cross'],key='building shape')
     col1, col2, col3, col4 = st.beta_columns(4)
     building_shape1 = Image.open("SC_ui/UI ICON-01.png")#"UI ICON-01.png")
     building_shape2 = Image.open("SC_ui/UI ICON-02.png")#"UI ICON-02.png")
-    building_shape3 = Image.open("SC_ui/UI ICON-03.png")#"UI ICON-03.png")
+    # building_shape3 = Image.open("SC_ui/UI ICON-03.png")#"UI ICON-03.png")
     building_shape4 = Image.open("SC_ui/UI ICON-04.png")#"UI ICON-04.png")
     with col1:
         # st.header("Rectangle")
@@ -302,10 +302,10 @@ def inputpage(home):
     with col2:
         # st.header("L shape")
         st.image(building_shape2, use_column_width=True)
+    # with col4:
+    #     # st.header("T shape")
+    #     st.image(building_shape3, use_column_width=True)
     with col3:
-        # st.header("T shape")
-        st.image(building_shape3, use_column_width=True)
-    with col4:
         # st.header("T shape")
         st.image(building_shape4, use_column_width=True)
 
