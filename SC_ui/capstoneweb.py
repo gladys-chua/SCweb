@@ -36,7 +36,7 @@ def unitType(no_of_room,p1,p2,p3,unittype_Dict):
  
 def inputpage(home):
 
-    st.title("Input your requirements and restrictions")
+    st.title("1. Input Site Information")
 
     gpr = st.number_input("Gross Plot Ratio (GPR):")
     error_count=0
@@ -51,6 +51,7 @@ def inputpage(home):
     max_gfa=math.ceil(gpr*site_area)
     gfa = st.number_input("Maximum Gross Floor Area (GFA) in sqm:",min_value=0,max_value=max_gfa,value=0,step=1)
     resi_gfa = gfa
+    building_total_height = st.number_input("Maximum Height of the Building:",min_value=0.00)
 
     lowrise = st.radio("Is there a low rise zone?",['No','Yes'])
     lowrise_height=0
@@ -102,13 +103,13 @@ def inputpage(home):
         else:
             maxUnits = round(numerator/100)
         # print(numerator,maxUnits)
-        dwelling_units = maxUnits 
-        st.write("Number of dwelling units:",maxUnits)
+        # dwelling_units = maxUnits 
+        # st.write("Number of dwelling units:",maxUnits)
+        dwelling_units = st.number_input("Number of Dwelling Units:",max_value=maxUnits,value=maxUnits,format="%d")
     # else:
     #     dwelling_units = st.number_input("Number of Dwelling Units:",min_value=0,max_value=1000,step=1,value=0)
         
     st.subheader("**Building Height**")
-    building_total_height = st.number_input("Maximum Height of the Building:",min_value=0.00)
     max_storey=0
     first_storey_height=5.0
     top_storey_height=3.6
